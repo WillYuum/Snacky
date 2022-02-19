@@ -42,21 +42,16 @@ fn main() {
         opengl: opengl,
     };
     let game = &mut main_game::init(&game_required_args);
-
-    let mut events = Events::new(EventSettings::new());
+    let mut events = Events::new(EventSettings::new()).ups(10);
     while let Some(e) = events.next(&mut window) {
-        //Rendering
         if let Some(r) = e.render_args() {
             game.render(&r);
         }
 
-        //Updates
         if let Some(u) = e.update_args() {
-            game.update(&u);
-
-            //print amout of fps
-            // let fps = 1.0 / u.dt;
-            // println!("fps: {}", fps);
+            if !game.update(&u) {
+                break;
+            }
         }
 
         if let Some(k) = e.button_args() {
@@ -65,4 +60,5 @@ fn main() {
             }
         }
     }
+    println!("Congratulations, your score was: {}", game.score);
 }
