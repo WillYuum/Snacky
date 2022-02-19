@@ -9,20 +9,25 @@ use piston::event_loop::*;
 use piston::input::*;
 use piston::window::WindowSettings;
 
+// use std::iter::FromIterator;
+
 pub mod main_game;
 use main_game::GameRequiredArgs;
 
+static mut dt: f64 = 0.1;
+
 fn main() {
+    // Change this to OpenGL::V2_1 if this fails.
     let opengl = OpenGL::V3_2;
 
     const COLS: u32 = 30;
     const ROWS: u32 = 20;
     const SQUARE_WIDTH: u32 = 20;
 
-    let window_width = COLS * SQUARE_WIDTH;
-    let window_height = ROWS * SQUARE_WIDTH;
+    const WIDTH: u32 = COLS * SQUARE_WIDTH;
+    const HEIGHT: u32 = ROWS * SQUARE_WIDTH;
 
-    let mut window: Window = WindowSettings::new("Snake Game", [window_width, window_height])
+    let mut window: Window = WindowSettings::new("Snake Game", [WIDTH, HEIGHT])
         .opengl(opengl)
         .exit_on_esc(true)
         .build()
@@ -34,6 +39,7 @@ fn main() {
         cols: COLS,
         rows: ROWS,
         square_width: SQUARE_WIDTH,
+        opengl: opengl,
     };
     let game = &mut main_game::init(&game_required_args);
 
@@ -46,16 +52,17 @@ fn main() {
 
         //Updates
         if let Some(u) = e.update_args() {
-            println!("Update!");
+            game.update(&u);
 
             //print amout of fps
             // let fps = 1.0 / u.dt;
             // println!("fps: {}", fps);
         }
 
-        // key inputs
-        if let Some(k) = e.press_args() {
-            println!("Press!");
+        if let Some(k) = e.button_args() {
+            if k.state == ButtonState::Press {
+                game.pressed(&k.button);
+            }
         }
     }
 }
